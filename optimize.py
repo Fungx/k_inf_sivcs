@@ -42,6 +42,11 @@ def variables_of(x: np.ndarray, k: int, type: str) -> np.ndarray:
 
 
 def optimize_nonliner(k: int):
+    """
+    使用`scipy`的非线性规划
+    :param k:
+    :return:
+    """
     # randomly initialize variables
     p0 = np.random.dirichlet(np.ones(k + 1))  # 不知道什么分布，可以产生k+1个和为1的随机值
     p1 = np.random.dirichlet(np.ones(k + 1))
@@ -85,7 +90,7 @@ SA
 
 def contrast(variables: np.ndarray) -> float:
     """
-    求对比度
+    对比度
     """
     k = len(variables[0]) - 1
     rk = np.power(variables[2], k)
@@ -93,6 +98,11 @@ def contrast(variables: np.ndarray) -> float:
 
 
 def safety_penalty_list(variables: np.ndarray) -> list:
+    """
+    安全惩罚值，也就是不足k张堆叠时的对比度
+    :param variables:
+    :return: 长度为`n-1`的列表，分别代表 1,...,n-1张堆叠的对比度
+    """
     k = len(variables[0]) - 1
     # security penalty
     ps = [0] * (k - 1)
@@ -103,6 +113,13 @@ def safety_penalty_list(variables: np.ndarray) -> list:
 
 
 def penalty(variables: np.ndarray, ws, wc) -> float:
+    """
+    总惩罚
+    :param variables:
+    :param ws:
+    :param wc:
+    :return:
+    """
     k = len(variables[0]) - 1
     # security penalty
     sum_ps = sum(safety_penalty_list(variables))
@@ -114,6 +131,13 @@ def penalty(variables: np.ndarray, ws, wc) -> float:
 
 
 def energy(variables: np.ndarray, ws, wc) -> float:
+    """
+    能量值
+    :param variables:
+    :param ws:
+    :param wc:
+    :return:
+    """
     return contrast(variables) * penalty(variables, ws, wc)
 
 
@@ -122,13 +146,14 @@ def energy(variables: np.ndarray, ws, wc) -> float:
 
 
 def combination_num(n, i) -> int:
+    """组合数"""
     return math.factorial(n) / (math.factorial(i) * math.factorial(n - i))
 
 
 def optimize_sa1(k: int, init_variables=None, maxitr=1_000_000, esp_p=0.5, esp_r=0.5, initial_temp=2000.0,
                  terminated_temp=0.0001, alpha=0.99, ws=25, wc=1):
     """
-    模拟退火
+    模拟退火1，一层循环
     :param k: 阈值
     :param init_variables: 初始变量
     :param maxitr: 最大迭代次数
@@ -208,7 +233,7 @@ def optimize_sa1(k: int, init_variables=None, maxitr=1_000_000, esp_p=0.5, esp_r
 def optimize_sa2(k: int, init_variables=None, maxitr=10, markov=2000, esp_p=0.5, esp_r=0.5, initial_temp=2000.0,
                  terminated_temp=0.001, alpha=0.95, ws=25, wc=1):
     """
-    模拟退火
+    模拟退火2，两层循环，每次迭代不更新`esp_p`,`esp_r`和`markov`
     :param k: 阈值
     :param init_variables: 初始变量
     :param maxitr: 最大迭代次数
@@ -236,7 +261,7 @@ def optimize_sa2(k: int, init_variables=None, maxitr=10, markov=2000, esp_p=0.5,
     best_variables = prev_variables.copy()
     prev_energy = best_energy
 
-    search_cnt = 0;
+    search_cnt = 0
     # start sa
     while itr_cnt < maxitr and temp > terminated_temp:
         for _ in range(markov):
@@ -290,7 +315,7 @@ def optimize_sa2(k: int, init_variables=None, maxitr=10, markov=2000, esp_p=0.5,
 def optimize_sa3(k: int, init_variables=None, maxitr=10, markov=2000, esp_p=0.5, esp_r=0.5, initial_temp=2000.0,
                  terminated_temp=0.001, alpha=0.95, ws=50, wc=1):
     """
-    模拟退火
+    模拟退火3，两层循环，每次迭代更新`esp_p`,`esp_r`和`markov`
     :param k: 阈值
     :param init_variables: 初始变量
     :param maxitr: 最大迭代次数
@@ -367,11 +392,14 @@ def optimize_sa3(k: int, init_variables=None, maxitr=10, markov=2000, esp_p=0.5,
         # update params
         itr_cnt += 1
         temp = temp * alpha
+        markov = int(markov * 1.5)
+        esp_p = max(esp_p * 0.67, 0.001)
+        esp_r = max(esp_r * 0.67, 0.001)
     return OptimizedResult(True, search_cnt, contrast(best_variables), best_variables)
 
 
 if __name__ == '__main__':
-    result = optimize_sa3(3,initial_temp=0.1,terminated_temp=0.1/2000,ws=50)
+    result = optimize_sa3(3, initial_temp=0.1, terminated_temp=0.1 / 2000, ws=50)
     # result = optimize_sa1(k, init_variables=vs)
     # print(_contrast(vs))
     # print(_penalty(vs, 1, 1))
