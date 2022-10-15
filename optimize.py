@@ -7,11 +7,12 @@ EPSILON = 1e-5
 
 
 class OptimizedResult:
-    def __init__(self, success, nitr, contrast, variables):
+    def __init__(self, success, nitr, contrast, variables,safety=None):
         self.success = success
         self.contrast = contrast
         self.nitr = nitr
         self.variables = variables
+        self.safety = safety
 
     def __str__(self) -> str:
         return str(self.__dict__)
@@ -230,8 +231,8 @@ def optimize_sa1(k: int, init_variables=None, maxitr=1_000_000, esp_p=0.5, esp_r
     return OptimizedResult(True, itr_cnt, contrast(best_variables), best_variables)
 
 
-def optimize_sa2(k: int, init_variables=None, maxitr=10, markov=2000, esp_p=0.5, esp_r=0.5, initial_temp=2000.0,
-                 terminated_temp=0.001, alpha=0.95, ws=25, wc=1):
+def optimize_sa2(k: int, init_variables=None, maxitr=10, markov=2000, esp_p=0.5, esp_r=0.5, initial_temp=0.1,
+                 terminated_temp=0.1/2000, alpha=0.95, ws=25, wc=1):
     """
     模拟退火2，两层循环，每次迭代不更新`esp_p`,`esp_r`和`markov`
     :param k: 阈值
@@ -309,7 +310,7 @@ def optimize_sa2(k: int, init_variables=None, maxitr=10, markov=2000, esp_p=0.5,
         # update params
         itr_cnt += 1
         temp = temp * alpha
-    return OptimizedResult(True, search_cnt, contrast(best_variables), best_variables)
+    return OptimizedResult(True, search_cnt, contrast(best_variables), best_variables,safety_penalty_list(best_variables))
 
 
 def optimize_sa3(k: int, init_variables=None, maxitr=10, markov=2000, esp_p=0.5, esp_r=0.5, initial_temp=2000.0,
