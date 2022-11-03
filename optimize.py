@@ -414,21 +414,37 @@ def xor_contrast(variables: np.ndarray) -> float:
     :return:
     """
     k = len(variables[0]) - 1
-    expected = np.vectorize(_xor_expected_black)(variables[2], k)
-    rk = variables[2] * expected
+    # expected_white = np.vectorize(_xor_expected_white)(variables[2], k)
+    # rk = variables[2] * expected_white
+    rk = np.vectorize(_xor_expected_white)(variables[2], k)
     return sum(variables[1] * rk) - sum(variables[0] * rk)
 
 
-def _xor_expected_black(x: int, t: int) -> float:
+# def _xor_expected_black(x: int, t: int) -> float:
+#     """
+#     根据随机数生成器的参数`x`计算恢复黑色像素的期望值，当奇数个1异或时，结果也为1。
+#     通过对所有奇数个1异或的情况求和得到结果。
+#     :param x: 随机数生成器参数
+#     :param t: 参与恢复的张数
+#     :return: 恢复黑色像素的期望值
+#     """
+#     expected = 0
+#     for i in range(1, t + 1, 2):
+#         expected += (x ** (t - i)) * ((1 - x) ** i)
+#
+#     return expected
+
+
+def _xor_expected_white(x: int, t: int) -> float:
     """
-    根据随机数生成器的参数`x`计算恢复黑色像素的期望值，当奇数个1异或时，结果也为1。
-    通过对所有奇数个1异或的情况求和得到结果。
+    根据随机数生成器的参数`x`计算恢复白色像素的期望值，当奇数个1异或时，结果也为1。
+    通过对所有偶数个1异或的情况求和得到结果。
     :param x: 随机数生成器参数
     :param t: 参与恢复的张数
-    :return: 恢复黑色像素的期望值
+    :return: 恢复白色像素的期望值
     """
     expected = 0
-    for i in range(1, t + 1, 2):
+    for i in range(0, t + 1, 2):
         expected += (x ** (t - i)) * ((1 - x) ** i)
 
     return expected
@@ -443,7 +459,7 @@ def xor_safety_penalty_list(variables: np.ndarray) -> list:
     k = len(variables[0]) - 1
     # security penalty
     ps = [0] * (k - 1)
-    v_expected = np.vectorize(_xor_expected_black)
+    v_expected = np.vectorize(_xor_expected_white)
 
     for t in range(1, k):
         rt = v_expected(variables[2], t)
@@ -456,8 +472,8 @@ def xor_penalty(variables: np.ndarray, ws, wc) -> float:
     # security penalty
     sum_ps = sum(safety_penalty_list(variables))
     # contrast penalty
-    rk = np.vectorize(_xor_expected_black)(variables[2], k)
-    sum_pc = max(0, sum(variables[1] * rk) - sum(variables[0] * rk) + EPSILON)
+    rk = np.vectorize(_xor_expected_white)(variables[2], k)
+    sum_pc = max(0, sum(variables[0] * rk) - sum(variables[1] * rk) + EPSILON)
 
     return 1 / ((1 + ws * sum_ps) * (1 + wc * sum_pc))
 
@@ -558,8 +574,5 @@ if __name__ == '__main__':
     # # print(_penalty(vs, 1, 1))
     # # print(_energy(vs))
     # print(result)
-    # print(_xor_expected_black(0.5, 1))
-    # print(_xor_expected_black(0.5, 2))
-    # print(_xor_expected_black(0.5, 3))
-    # print(_xor_expected_black(0.5, 4))
+
     print(optimize_xor_sa2(k=3))
