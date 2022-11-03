@@ -2,7 +2,7 @@ import json
 import random
 import time
 
-from optimize import OptimizedResult, optimize_sa2
+from optimize import OptimizedResult, optimize_xor_sa2
 import os
 from multiprocessing import Process
 
@@ -22,14 +22,14 @@ def find_best_sa2(times, dest_path, k, markov, esp_p, esp_r, ws):
 
     best_contrast_2 = 0
     best_time_2 = -1
+
     for t in range(times):
-        res = optimize_sa2(k, markov=markov * k, ws=ws, initial_temp=0.1, terminated_temp=0.1 / 2000,
-                           esp_p=esp_p, esp_r=esp_r)
+        res = optimize_xor_sa2(k, markov=markov * k, ws=ws, initial_temp=0.1, terminated_temp=0.1 / 2000,
+                               esp_p=esp_p, esp_r=esp_r)
         res_map = {'id': t, 'nitr': res.nitr, 'variables': res.variables.tolist(), 'contrast': res.contrast,
                    'safety': list(res.safety)}
         print(res_map)
         all_results.append(res_map)
-
         if res.contrast > best_contrast_1 and check_safety(res.safety, 0.001):
             best_contrast_1 = res.contrast
             best_time_1 = t
@@ -50,10 +50,10 @@ def find_best_sa2(times, dest_path, k, markov, esp_p, esp_r, ws):
 if __name__ == "__main__":
     TIMES = 5
     MARKOV = 45000
-    WS = 750
-    ESP_R, ESP_P = 0.25, 0.25
-    K = 4
-    dir = f"sa2_many_one_k={K}_mk={MARKOV}k_ws={WS}_espr={ESP_R}_espp={ESP_P}_TIMES={TIMES}"
+    WS = 35
+    ESP_R, ESP_P = 0.5, 0.5
+    K = 2
+    dir = f"xor_sa2_many_one_TIMES={TIMES}_k={K}_mk={MARKOV}k_ws={WS}_espr={ESP_R}_espp={ESP_P}"
     os.mkdir(dir)
     for t in range(8):
         print(f"start k={K}...")

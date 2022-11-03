@@ -310,6 +310,8 @@ def optimize_sa2(k: int, init_variables=None, maxitr=10, markov=2000, esp_p=0.5,
         # update params
         itr_cnt += 1
         temp = temp * alpha
+        esp_p = max(esp_p * 0.67, 0.01)
+        esp_r = max(esp_r * 0.67, 0.01)
     return OptimizedResult(True, search_cnt, contrast(best_variables), best_variables,
                            safety_penalty_list(best_variables))
 
@@ -543,6 +545,8 @@ def optimize_xor_sa2(k: int, init_variables=None, maxitr=10, markov=2000, esp_p=
         # update params
         itr_cnt += 1
         temp = temp * alpha
+        esp_p = max(esp_p * 0.67, 0.1)
+        esp_r = max(esp_r * 0.67, 0.1)
     return OptimizedResult(True, search_cnt, xor_contrast(best_variables), best_variables,
                            xor_safety_penalty_list(best_variables))
 
