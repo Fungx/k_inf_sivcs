@@ -14,7 +14,7 @@ def check_safety(safety, n):
     return True
 
 
-def find_best_sa2(times, dest_path, k, markov, esp_p, esp_r, ws):
+def find_best_sa2(times, dest_path, k, markov, esp_p, esp_r, ws, wc=1):
     start = time.time()
     all_results = []
     best_contrast_1 = 0
@@ -24,7 +24,7 @@ def find_best_sa2(times, dest_path, k, markov, esp_p, esp_r, ws):
     best_time_2 = -1
 
     for t in range(times):
-        res = optimize_xor_sa2(k, markov=markov * k, ws=ws, initial_temp=0.1, terminated_temp=0.1 / 2000,
+        res = optimize_xor_sa2(k, markov=markov * k, ws=ws, wc=wc, initial_temp=0.1, terminated_temp=0.1 / 2000,
                                esp_p=esp_p, esp_r=esp_r)
         res_map = {'id': t, 'nitr': res.nitr, 'variables': res.variables.tolist(), 'contrast': res.contrast,
                    'safety': list(res.safety)}
@@ -50,12 +50,13 @@ def find_best_sa2(times, dest_path, k, markov, esp_p, esp_r, ws):
 if __name__ == "__main__":
     TIMES = 5
     MARKOV = 45000
-    WS = 35
+    WS = 50
+    WC = 1
     ESP_R, ESP_P = 0.5, 0.5
-    K = 2
-    dir = f"xor_sa2_many_one_TIMES={TIMES}_k={K}_mk={MARKOV}k_ws={WS}_espr={ESP_R}_espp={ESP_P}"
+    K = 3
+    dir = f"res_xor_new_sa2_many_one_k={K}_mk={MARKOV}k_ws={WS}_wc={WC}_espr={ESP_R}_espp={ESP_P}_TIMES={TIMES}"
     os.mkdir(dir)
     for t in range(8):
         print(f"start k={K}...")
-        p = Process(target=find_best_sa2, args=(TIMES, f"{dir}/{t}.json", K, MARKOV * K, ESP_P, ESP_R, WS))
+        p = Process(target=find_best_sa2, args=(TIMES, f"{dir}/{t}.json", K, MARKOV * K, ESP_P, ESP_R, WS, WC))
         p.start()
