@@ -1,27 +1,26 @@
-# (k,inf)-VCS的模拟退火实验
-## 运行环境
+# SIVCS
+[zh](README_zh_CN.md) | [en](README.md)
+
+This repo contains the implementation code for the paper "Size Invariant Visual Cryptography Schemes with Evolving Threshold Access Structures."
+## Requirements
 - python 3.9
-- 各种测试脚本(`*.ipynb`)需要安装`Jupyter Notebook`才能运行，执行以下命令安装。
-```shell
-pip install jupyter
-```
-- 依赖的其他库版本位于`requirements.txt`，执行以下命令安装。
-```shell
-pip install -r requirements.txt
-```
-## 文件说明
+- Jupyter Notebook is required to run testing scripts (*.ipynb). 
 
+Install all libraries by running the command:
+```shell
+pip install jupyter && pip install -r requirements.txt
+```
+## Guide
 ### optimize.py
-实现了核心算法的文件，算法分别对应以下4个函数。
-- optimize_nonliner. 调用`scipy.optimze`库的非线性规划函数实现，只能算出`k=2`时的解
-- optimize_sa1. 一开始的模拟退火，只有一层循环进行迭代。已弃用。
-- optimize_sa2. 模拟退火2，添加了马尔科夫链对应的第二层循环。
-- optimize_sa3. 模拟退火3，在每次马尔可夫链循环结束后，更新部分超参数。
+This file implements the core algorithms, with each algorithm corresponding to one of the following four functions:
+- `optimize_nonliner`  Implements the optimization using the `scipy.optimize` for nonlinear programming. It can only calculate the solution for k=2.
+- `optimize_sa1` Implements the basic simulated annealing algorithm with a single loop for iteration. This function is deprecated.
+- `optimize_sa2` Implements the simulated annealing algorithm with an additional loop for the Markov chain.
+- `optimize_sa3` Implements the simulated annealing algorithm with updates to hyperparameters after each iteration of the Markov chain.
 
-计算结果由对象`OptimizedResult`保存。
+The results are stored in the `OptimizedResult` object.
 
 ### opt_sa.ipynb
-能看到生成图像效果的脚本
-
+This script allows you to visualize the generated images.
 ### *_stat.ipynb
-对各种结果进行统计的脚本
+These scripts perform statistical analysis on results.
