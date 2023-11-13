@@ -13,10 +13,10 @@ pip install jupyter && pip install -r requirements.txt
 ## Guide
 ### optimize.py
 This file implements the core algorithms, with each algorithm corresponding to one of the following four functions:
-- `optimize_nonliner`  Implements the optimization using the `scipy.optimize` for nonlinear programming. It can only calculate the solution for k=2.
-- `optimize_sa1` Implements the basic simulated annealing algorithm with a single loop for iteration. This function is deprecated.
-- `optimize_sa2` Implements the simulated annealing algorithm with an additional loop for the Markov chain.
-- `optimize_sa3` Implements the simulated annealing algorithm with updates to hyperparameters after each iteration of the Markov chain.
+- `optimize_nonliner` optimization using the `scipy.optimize` for nonlinear programming. It can only calculate the solution for k=2.
+- `optimize_sa1` basic simulated annealing algorithm with a single loop for iteration. This function is deprecated.
+- `optimize_sa2` simulated annealing algorithm with an additional loop for the Markov chain.
+- `optimize_sa3` simulated annealing algorithm with updates to hyperparameters after each iteration of the Markov chain.
 
 The results are stored in the `OptimizedResult` object.
 
